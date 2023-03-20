@@ -14,9 +14,11 @@ struct GetApi: Codable{
     var body: String
 }
 
-class ViewController: UIViewController {
+class ViewController: UIViewController,UITableViewDelegate,UITableViewDataSource {
 
     var getApiArray: [GetApi] = []
+    
+    @IBOutlet weak var dataTable: UITableView!
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -32,12 +34,28 @@ class ViewController: UIViewController {
             do{
                 if error == nil {
                     self.getApiArray = try JSONDecoder().decode([GetApi].self, from: data!)
-                    print(self.getApiArray)
+//                    print(self.getApiArray)
+                    DispatchQueue.main.async {
+                        self.dataTable.reloadData()
+                    }
                 }
             }
             catch {
                 print(error.localizedDescription)
             }
         }.resume()
+    }
+    func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
+        return getApiArray.count
+    }
+    
+    func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
+        let cell = dataTable.dequeueReusableCell(withIdentifier: "cell", for: indexPath) as! TableViewCell
+        cell.label1.text = "\(getApiArray[indexPath.row].id)"
+        cell.label2.text = getApiArray[indexPath.row].body
+        return cell
+    }
+    func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
+        return 160
     }
 }
